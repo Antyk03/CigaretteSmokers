@@ -1,1 +1,1 @@
-# CigaretteSmokers
+Cigarette Smokers Problem in c++
