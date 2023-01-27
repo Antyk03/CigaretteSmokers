@@ -22,6 +22,7 @@ void* smoker_tobacco(void *arg) {
             sem_post(&match_sem);
             cout << "Smoker with tobacco drop match on table." << endl;
         }
+        sleep(1);
     }
 }
 
@@ -38,6 +39,7 @@ void* smoker_match(void *arg) {
             sem_post(&tobacco_sem);
             cout << "Smoker with match drop tobacco on table." << endl;
         }
+        sleep(1);
     }
 }
 
@@ -54,6 +56,7 @@ void* smoker_paper(void *arg) {
             sem_post(&match_sem);
             cout << "Smoker with paper drop match on table." << endl;
         }
+        sleep(1);
     }
 }
 //
@@ -95,8 +98,8 @@ pthread_t agentThread, smokerTobaccoThread, smokerMatchThread, smokerPaperThread
 
 void createThreads() {
     pthread_create(&smokerMatchThread, NULL, smoker_tobacco, NULL);
-    pthread_create(&smokerTobaccoThread, NULL, smoker_tobacco, NULL);
-    pthread_create(&smokerPaperThread, NULL, smoker_tobacco, NULL);
+    pthread_create(&smokerTobaccoThread, NULL, smoker_paper, NULL);
+    pthread_create(&smokerPaperThread, NULL, smoker_match, NULL);
     pthread_create(&agentThread, NULL, agent, NULL);
 }
 
