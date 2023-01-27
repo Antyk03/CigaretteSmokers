@@ -8,55 +8,66 @@ using namespace std;
 // Creating semaphores to coordinate the smokers.
 sem_t match_sem, paper_sem, tobacco_sem, more_needed;
 
+//Initialize Semaphores
+void initSemaphores() {
+    sem_init(&match_sem, 0, 0); // Initialize the match semaphore to 0
+    sem_init(&paper_sem, 0, 0);
+    sem_init(&tobacco_sem, 0, 0);
+    sem_init(&more_needed, 0, 0);
+}
+
 // Smokers threads
 void* smoker_tobacco(void *arg) {
     while (true) {
         sem_wait (&match_sem);
-        cout << "Smoker with tobacco grab match from table." << endl;
+        cout << "\nSmoker with tobacco grab match from table.";
         if (sem_trywait (&paper_sem) == 0) {
-            cout << "Smoker with tobacco grab paper from table." << endl;
+            cout << "\nSmoker with tobacco grab paper from table.";
+            cout << "\nSmoker with tobacco is smoking...";
+            cout << "\nSmoker with tobacco request for more.";
             sem_post(&more_needed);
-            cout << "Smoker with tobacco request for more." << endl;
         }
         else {
             sem_post(&match_sem);
-            cout << "Smoker with tobacco drop match on table." << endl;
+            cout << "\nSmoker with tobacco drop match on table.";
         }
-        sleep(1);
+        sleep(2);
     }
 }
 
 void* smoker_match(void *arg) {
     while (true) {
-        sem_wait (&tobacco_sem);
-        cout << "Smoker with match grab tobacco from table." << endl;
-        if (sem_trywait (&paper_sem) == 0) {
-            cout << "Smoker with match grab paper from table." << endl;
+        sem_wait (&paper_sem);
+        cout << "\nSmoker with match grab paper from table.";
+        if (sem_trywait (&tobacco_sem) == 0) {
+            cout << "\nSmoker with match grab tobacco from table.";
+            cout << "\nSmoker with match is smoking...";
+            cout << "\nSmoker with match request for more.";
             sem_post(&more_needed);
-            cout << "Smoker with match request for more." << endl;
         }
         else {
-            sem_post(&tobacco_sem);
-            cout << "Smoker with match drop tobacco on table." << endl;
+            sem_post(&paper_sem);
+            cout << "\nSmoker with match drop paper on table.";
         }
-        sleep(1);
+        sleep(2);
     }
 }
 
 void* smoker_paper(void *arg) {
     while (true) {
-        sem_wait (&match_sem);
-        cout << "Smoker with paper grab match from table." << endl;
-        if (sem_trywait (&tobacco_sem) == 0) {
-            cout << "Smoker with paper grab tobacco from table." << endl;
+        sem_wait (&tobacco_sem);
+        cout << "\nSmoker with paper grab tobacco from table.";
+        if (sem_trywait (&match_sem) == 0) {
+            cout << "\nSmoker with paper grab match from table.";
+            cout << "\nSmoker with paper is smoking...";
+            cout << "\nSmoker with paper request for more.";
             sem_post(&more_needed);
-            cout << "Smoker with paper request for more." << endl;
         }
         else {
-            sem_post(&match_sem);
-            cout << "Smoker with paper drop match on table." << endl;
+            sem_post(&tobacco_sem);
+            cout << "\nSmoker with paper drop tobacco on table.";
         }
-        sleep(1);
+        sleep(2);
     }
 }
 //
@@ -65,35 +76,28 @@ void* smoker_paper(void *arg) {
 void* agent (void *arg) {
     while (true) {
         int number = rand() % 3;
-        cout << number;
         if (number == 0) {
             sem_post(&match_sem);
-            cout << "Agent drop match on table." << endl;
+            cout << "\nAgent drop match on table.";
             sem_post(&paper_sem);
-            cout << "Agent drop paper on table." << endl;
+            cout << "\nAgent drop paper on table.";
         } else if (number == 1) {
             sem_post(&match_sem);
-            cout << "Agent drop match on table." << endl;
+            cout << "\nAgent drop match on table.";
             sem_post(&tobacco_sem);
-            cout << "Agent drop tobacco on table." << endl;
+            cout << "\nAgent drop tobacco on table.";
         } else if (number == 2) {
             sem_post(&tobacco_sem);
-            cout << "Agent drop tobacco on table." << endl;
+            cout << "\nAgent drop tobacco on table.";
             sem_post(&paper_sem);
-            cout << "Agent drop paper on table." << endl;
+            cout << "\nAgent drop paper on table.";
         }
         sem_wait (&more_needed);   
     }
 }
 //
 
-void initSemaphores() {
-    sem_init(&match_sem, 0, 1);
-    sem_init(&paper_sem, 0, 1);
-    sem_init(&tobacco_sem, 0, 1);
-    sem_init(&more_needed, 0, 1);
-}
-
+//Creating the threads
 pthread_t agentThread, smokerTobaccoThread, smokerMatchThread, smokerPaperThread;
 
 void createThreads() {
@@ -103,6 +107,8 @@ void createThreads() {
     pthread_create(&agentThread, NULL, agent, NULL);
 }
 
+
+//Joining threads with main thread
 void joinThreads() {
     pthread_join(agentThread, NULL);
     pthread_join(smokerTobaccoThread, NULL);
@@ -110,6 +116,7 @@ void joinThreads() {
     pthread_join(smokerPaperThread, NULL);
 }
 
+//Destroying semaphores
 void destroySemaphores() {
     sem_destroy(&match_sem);
     sem_destroy(&paper_sem);
@@ -118,7 +125,8 @@ void destroySemaphores() {
 }
 
 int main() {
-    initSemaphores();
+    cout <<"\n------------Cigarette Smokers Problem in C++------------------\n\n";
+    initSemaphores(); 
     createThreads();
     joinThreads();
     destroySemaphores();
