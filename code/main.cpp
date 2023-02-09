@@ -100,11 +100,13 @@ void* agent (void *arg) {
 //Creating the threads
 pthread_t agentThread, smokerTobaccoThread, smokerMatchThread, smokerPaperThread;
 
-void createThreads() {
-    pthread_create(&smokerMatchThread, NULL, smoker_tobacco, NULL);
-    pthread_create(&smokerTobaccoThread, NULL, smoker_paper, NULL);
-    pthread_create(&smokerPaperThread, NULL, smoker_match, NULL);
-    pthread_create(&agentThread, NULL, agent, NULL);
+int createThreads() {
+    int error = 0;
+    error = error + pthread_create(&smokerMatchThread, NULL, smoker_tobacco, NULL);
+    error = error + pthread_create(&smokerTobaccoThread, NULL, smoker_paper, NULL);
+    error = error + pthread_create(&smokerPaperThread, NULL, smoker_match, NULL);
+    error = error + pthread_create(&agentThread, NULL, agent, NULL);
+    return error;
 }
 
 
@@ -127,9 +129,11 @@ void destroySemaphores() {
 int main() {
     cout <<"\n------------Cigarette Smokers Problem in C++------------------\n\n";
     initSemaphores(); 
-    createThreads();
+    if (createThreads() > 0) {
+        cout << "Error creating threads.\n";
+        return 0;
+    }
     joinThreads();
     destroySemaphores();
     return 0;
 }
-
